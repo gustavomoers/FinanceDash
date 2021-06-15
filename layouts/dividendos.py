@@ -10,10 +10,10 @@ import re
 import pandas as pd
 import pathlib
 from dateutil.relativedelta import relativedelta
+from plotly.subplots import make_subplots
 
 this_year = datetime.datetime.today().strftime('%Y')
 five_yrs_ago = (datetime.datetime.now() - relativedelta(years=5)).strftime('%Y')
-
 
 
 
@@ -27,7 +27,7 @@ class Medias:
     segmento = pd.read_csv(DATA_PATH.joinpath('medias_segmento.csv'),low_memory=False,index_col=[0])
     mercado = pd.read_csv(DATA_PATH.joinpath('medias_mercado_ttm.csv'),low_memory=False,index_col=[0])
     capital = pd.read_csv(DATA_PATH.joinpath('medias_capital.csv'),low_memory=False,index_col=[0])
-
+    alldiv = pd.read_csv(DATA_PATH.joinpath('proventos_b3.csv'),low_memory=False)  # GregorySmith Kaggle
 
 colors = {'header': "rgb(144, 31, 35)",'first_column': 'rgb(190, 195, 218,.2)',
           'column_ttm': 'rgb(248, 181, 0,.3)','head_table':'rgb(190, 195, 218,.5)',
@@ -35,50 +35,22 @@ colors = {'header': "rgb(144, 31, 35)",'first_column': 'rgb(190, 195, 218,.2)',
           'ebitda':'rgb(133, 204, 254)','ebit':'rgb(98, 112, 167)','lucro':'rgb(248, 181, 0)',
           'contorno':'rgb(8,48,107)'}
 
-indicadores = [ 'Capital_Giro/revenues',
-                'Capex/Receita',
-                'Capex/Depreciação',
-                'Capex Líquido/Receita',
-                'Capex Líquido/EBIT(1-t)',
-                'P/Cap_Giro Atual',
-                'Porcentagem Reinvestida']
+indicadores = ['Dividend Yield','Payout']
 
-def layout_tab4():
+def layout_tab6():
     return html.Div([
                 
-                     dbc.Container([ ## fluxo de caixa 
+                     dbc.Container([ ## tabela proventos
                                 dbc.Row([
                                     dbc.Col([
                                         dbc.Card(
                                             [
-                                                dbc.CardHeader("Demonstração do Fluxo de Caixa"),
+                                                dbc.CardHeader("Proventos Históricos"),
                                                 dbc.CardBody([
                                                     dbc.Row([
                                                         dbc.Col([
-                                                            dcc.RangeSlider(
-                                                                    id='slider_dfc_table',
-                                                                    updatemode = 'mouseup',
-                                                                    min=2009,
-                                                                    max=int(this_year),
-                                                                    value=[2016,int(this_year)],
-                                                                    marks={year: str(year) for year in range(2009,int(this_year)+1,2)},
-                                                                    step=1,
-                                                                    dots=True,
-                                                                    pushable=2,
-                                                                    included=True,
-                                                                    vertical=False,
-                                                                    persistence=True,
-                                                                    persistence_type='session',
-                                                                    tooltip={'always_visible':False,'placement':'bottom'}),
-                                                                ],width={'size':10, 'offset': 1},
-                                            ),
-                                                    ]),
-                                                    html.Br(),
-
-                                                    dbc.Row([
-                                                        dbc.Col([
                                                             html.Div(
-                                                                    id="dfc_table")],
+                                                                    id="div_table")],
                                                                     width={'size': 12, 'offset': 0},
                                                             ),
                                                     ]),
@@ -87,28 +59,29 @@ def layout_tab4():
                                             ],color="light"),
                                     ]),
                                 ]),
-                                
-                        ]),
+                                ]),
+                        
         
                     html.Br(),
                     html.Br(),
                     html.Br(),
         
-                     dbc.Container([  ### análise gráfica
+                    dbc.Container([  ### análise gráfica
                                 dbc.Row([
                                     dbc.Col([
                                         dbc.Card(
                                             [
-                                                dbc.CardHeader("Análise Gráfica Atividades de Investimento"),
+                                                dbc.CardHeader("Análise Gráfica Proventos"),
                                                 dbc.CardBody([
                                                     dbc.Row([
                                                         dbc.Col([
                                                             dcc.Dropdown(
-                                                                id="dropdown_dfc_graph",
-                                                                options=[{'label': 'Capex','value': 'capex'},
-                                                                        {'label': 'Capital de Giro (non-cash)', 'value': 'wc_non_cash'},  
+                                                                id="dropdown_div_graph",
+                                                                options=[{'label': 'Proventos','value': 'provento'},
+                                                                            {'label': 'Proventos por Ano', 'value': 'ano'},
+                                                                            {'label': 'Payout', 'value': 'payout'},
                                                                         ],
-                                                                value='capex',
+                                                                value='ano',
                                                                 persistence=True,
                                                                 persistence_type='session',
                                                                 style={'margin': 'left','font-family':'sans-serif',
@@ -118,12 +91,12 @@ def layout_tab4():
 
                                                         dbc.Col([
                                                             dcc.RangeSlider(
-                                                                    id='slider_dfc_graph',
+                                                                    id='slider_div_graph',
                                                                     updatemode = 'mouseup',
-                                                                    min=2009,
+                                                                    min=2006,
                                                                     max=int(this_year),
                                                                     value=[2016,int(this_year)],
-                                                                    marks={year: str(year) for year in range(2009,int(this_year)+1,2)},
+                                                                    marks={year: str(year) for year in range(2006,int(this_year)+1,2)},
                                                                     step=1,
                                                                     dots=True,
                                                                     pushable=2,
@@ -143,7 +116,7 @@ def layout_tab4():
                                                             dcc.Loading(
                                                                     id="loading-1",
                                                                     type="default",
-                                                                    children=[dcc.Graph(id="dfc_graph")]
+                                                                    children=[dcc.Graph(id="div_graph")]
                                                             ),
                                                             
                                                             
@@ -156,8 +129,8 @@ def layout_tab4():
                                             ],color="light"),
                                     ]),
                                 ]),
-                               
-                        ]),
+                                ]),
+                                
 
                     html.Br(),
                     html.Br(),
@@ -173,11 +146,10 @@ def layout_tab4():
                                                     dbc.Row([
                                                         dbc.Col([
                                                             dcc.Dropdown(
-                                                                id="dropdown_indicadores_dfc",
+                                                                id="dropdown_indicadores_div",
                                                                 options=[{"label": x, "value": x} for x in indicadores],
                                                                 multi=True,
-                                                                value=['Capital_Giro/revenues',
-                                                                        'Capex/Receita'],
+                                                                value=['Dividend Yield','Payout'],
                                                                 persistence=True,
                                                                 persistence_type='session',
                                                                 style={'margin': 'left','font-family':'sans-serif',
@@ -187,7 +159,7 @@ def layout_tab4():
 
                                                         dbc.Col([
                                                             dcc.Dropdown(
-                                                                    id='dropdown_comparador_dfc',
+                                                                    id='dropdown_comparador_div',
                                                                     options=[{'label': 'Média Setor','value': 'SETOR'},
                                                                             {'label': 'Média Subsetor', 'value': 'SUBSETOR'},
                                                                             {'label': 'Média Segmento', 'value': 'SEGMENTO'},
@@ -209,7 +181,7 @@ def layout_tab4():
                                                     dbc.Row([
                                                         dbc.Col([
                                                             html.Div(
-                                                                    id="indicadores_dfc_table")],
+                                                                    id="indicadores_div_table")],
                                                                     width={'size': 12, 'offset': 0},
                                                             ),
                                                     ]),
@@ -219,7 +191,7 @@ def layout_tab4():
                                                     dbc.Row([
                                                         dbc.Col([
                                                             dcc.RangeSlider(
-                                                                    id='slider_dfc_indic',
+                                                                    id='slider_div_indic',
                                                                     updatemode = 'mouseup',
                                                                     min=2009,
                                                                     max=int(this_year),
@@ -246,8 +218,10 @@ def layout_tab4():
                                                                     dcc.Loading(
                                                                             id="loading-1",
                                                                             type="default",
-                                                                            children=[dcc.Graph(id='dfc_indicadores_graph')]
+                                                                            children=[dcc.Graph(id='div_indicadores_graph')]
                                                                     ),
+                                                                    
+                                                                    
                                                                     )],
                                                                     width={'size': 12, 'offset': 0},
                                                             ),
@@ -268,88 +242,63 @@ def layout_tab4():
 
 
 
-def layout_dfc_table(dff,year):
+def layout_div_table(dff):
 
+    cd_cv = dff['Codigo_CVM'].unique()[0]
+    tipo = dff['CLASSE_x'].unique()[0]
 
-    dff = dff.loc[(dff['tipo_resultado'] == 'anual')]             
+    medias = Medias()
+
+    d1 = getattr(medias,'alldiv')
+
+    diviid = d1.query("Codigo_CVM == [@cd_cv]")
+
+    if tipo == 'UNT N2':
+        tipo = 'UNT'
+
+    diviid = diviid.loc[(diviid['CLASSE'] == tipo)]
+
+    diviid = diviid.loc[(diviid['Proventos'].isin(['DIVIDENDO','JRS CAP PROPRIO']))]
+
+    diviid.drop(diviid.columns.difference(['Proventos','Data COM','Valor',
+       'Valor ajustado', 'Preço COM ajustado', 'Provento/Preço(%) ajustado','Pagamento']),axis=1,inplace=True)
+
+    diviid['Data COM'] = pd.to_datetime(diviid['Data COM'],errors='coerce')
+    diviid['Pagamento'] = pd.to_datetime(diviid['Pagamento'],errors='coerce')
+
+    diviid.sort_values('Data COM',inplace=True,ascending=False)
+
+    diviid['Data COM'] = diviid['Data COM'].dt.strftime('%d-%m-%Y')
+    diviid['Pagamento'] = diviid['Pagamento'].dt.strftime('%d-%m-%Y')
+
+    diviid = diviid[['Proventos','Data COM','Pagamento','Valor','Valor ajustado','Preço COM ajustado',
+                    'Provento/Preço(%) ajustado']]
     
-            
-        
-    dff = dff[(dff['ano'] >= year[0]) & (dff['ano'] <= year[1])]
-    
-
-    dfc = dff.sort_values(by='DT_FIM_EXERC')
-    dfc1 = dfc.pivot_table(columns=['ano','LABEL'], values=['Aumento (Redução) de Caixa e Equivalentes',
-                                                            'Caixa Gerado nas Operações',
-                                                            'Caixa Líquido Atividades Operacionais',
-                                                            'Caixa Líquido Atividades de Financiamento',
-                                                            'Caixa Líquido Atividades de Investimento',
-                                                            'Capex',
-                                                            'Saldo Final de Caixa e Equivalentes',
-                                                            'Saldo Inicial de Caixa e Equivalentes',
-                                                            'Variação Cambial s/ Caixa e Equivalentes',
-                                                            'Variações nos Ativos e Passivos',
-                                                            'Depreciação'])
-
-    index_order = ['Caixa Líquido Atividades Operacionais',
-                    'Caixa Gerado nas Operações',
-                    'Depreciação',
-                    'Variações nos Ativos e Passivos',
-                    'Caixa Líquido Atividades de Investimento',
-                    'Capex',
-                    'Caixa Líquido Atividades de Financiamento',
-                    'Variação Cambial s/ Caixa e Equivalentes',
-                    'Aumento (Redução) de Caixa e Equivalentes',
-                    'Saldo Inicial de Caixa e Equivalentes',
-                    'Saldo Final de Caixa e Equivalentes']
-
-    dfc3 = dfc1.reindex(index_order)
-
-    dfc3 = dfc3[dfc3.columns[::-1]]
-    dfc3.reset_index(inplace=True)
-    dfc3.columns = dfc3.columns.droplevel(0)
-    
-
-    ahs = []
-    for x in range(1,(len(dfc3.columns)-1)):
-        data = (dfc3[dfc3.columns[x]]-dfc3[dfc3.columns[x+1]])/np.abs(dfc3[dfc3.columns[x+1]])
-        ahs.append(data)
-
-    y = 0
-    for x in range(2,(len(dfc3.columns)+len(ahs)-1),2):
-
-        dfc3.insert(x,'AH_%i'%y,ahs[y])
-        y=y+1
-
-    columns = [{'name': '', 'id': '', 'type': 'text', 'editable': True}]
-    formatation = []
-    for x in range(1,(len(dfc3.columns))):
-        if (x % 2) == 0:
-            columns.append({"name": 'AH %', "id": dfc3.columns[x],'type':'numeric',
-                  'format': Format(precision=2, scheme=Scheme.percentage),
-                            'hideable': True})
-            formatation.append(dfc3.columns[x])
-
-        else:
-            columns.append({"name": dfc3.columns[x], "id": dfc3.columns[x],'type':'numeric',
-                  'format': Format(precision=2,group=',',group_delimiter='.',
+    columns = [{'name': 'Proventos', 'id': 'Proventos', 'type': 'text', 'editable': True,'hideable':'True'},
+             {'name': 'Data COM', 'id': 'Data COM', 'hideable': True},
+             {'name': 'Pagamento', 'id': 'Pagamento', 'hideable': True},
+             {'name': 'Valor', 'id': 'Valor', 'hideable': True, 'type':'numeric',
+                  'format': Format(precision=4,
                     decimal_delimiter=',',symbol=Symbol.yes, symbol_prefix='R$ ',
-                    si_prefix=Prefix.mega, symbol_suffix=' ')})
-    
-  
-    
-    red_values = [{'if': {'column_id': str(x), 'filter_query': '{{{0}}} < 0'.format(x)},
-        'color': 'red'}  for x in formatation]
-    
-    green_values = [{'if': {'column_id': str(x), 'filter_query': '{{{0}}} > 0'.format(x)},
-        'color': 'green'}  for x in formatation]
+                    symbol_suffix=' ')},
+             {'name': 'Valor ajustado', 'id': 'Valor ajustado', 'hideable': True,'type':'numeric',
+                  'format': Format(precision=4,
+                    decimal_delimiter=',',symbol=Symbol.yes, symbol_prefix='R$ ',
+                     symbol_suffix=' ')},
+             {'name': 'Preço COM ajustado', 'id': 'Preço COM ajustado', 'hideable': True, 'type':'numeric',
+                  'format': Format(precision=4,
+                    decimal_delimiter=',',symbol=Symbol.yes, symbol_prefix='R$ ',
+                     symbol_suffix=' ')},
+             {'name': 'Provento/Preço(%) ajustado',
+              'id': 'Provento/Preço(%) ajustado',
+              'hideable': True,'type':'numeric',
+                  'format': Format(precision=2, scheme=Scheme.percentage)}]
 
-    red_values.extend(green_values)
 
     return ([dash_table.DataTable(
-                            id="final-table-2",  fixed_columns={'headers': True,'data': 1},
+                            id="final-table-4",  fixed_columns={'headers': True},
                             columns=columns,
-                            data=dfc3.to_dict('records'),   
+                            data=diviid.to_dict('records'),   
                             style_table={'minWidth': '100%','marginLeft': 'auto', 
                                          'marginRight': 'auto'},
                             style_data={
@@ -358,21 +307,18 @@ def layout_dfc_table(dff,year):
                             style_cell={
                                         'height': 'auto',
                                         # all three widths are needed
-                                        'minWidth': '180px', 'width': '180px', 'maxWidth': '180px',
+                                        'minWidth': '80px', 'width': '80px', 'maxWidth': '80px',
                                         'whiteSpace': 'normal','font-family':'sans-serif',
                                         'fontSize':12,
                                     },
         
                             style_cell_conditional=[{
                                                     'if': {'column_editable': True},
-                                                    'width': '180px','textAlign':'left',
-                                                    'backgroundColor': colors['first_column'],
+                                                    'width': '100px','textAlign':'left',
                                                     'fontWeight': 'bold'},
                                                     {'if': {'column_id': 'TTM'},
                                                             'backgroundColor': colors['column_ttm']}
                                                 ],
-
-                            style_data_conditional=red_values,
 
                             style_header={
                                         'backgroundColor': colors['head_table'],
@@ -382,102 +328,120 @@ def layout_dfc_table(dff,year):
                             style_as_list_view=True,
                             export_format='xlsx',
                             export_headers='display',
-                            merge_duplicate_headers=True,
+                            merge_duplicate_headers=True,page_size=10
                             )])
 
 
 
-def dfc_graph(dff,tipo,year):
+def div_graph(dff,tipo,year):
 
-    dff = dff.loc[(dff['tipo_resultado'] == 'anual')]             
-        
-    dff = dff[(dff['ano'] >= year[0]) & (dff['ano'] <= year[1])] 
- 
-    dff.sort_values('DT_FIM_EXERC', inplace=True)
+    if tipo == 'provento':
+        cd_cv = dff['Codigo_CVM'].unique()[0]
+        tipo = dff['CLASSE_x'].unique()[0]
 
-    dff[['Capex']] = dff[['Capex']].fillna(value=0)
-    dff[['Capex/Receita']] = dff[['Capex/Receita']].fillna(value=0)
-    dff[['Depreciação']] = dff[['Depreciação']].fillna(value=0)
-    dff[['Capex Líquido']] = dff[['Capex Líquido']].fillna(value=0)
-    dff[['Capex Líquido/Receita']] = dff[['Capex Líquido/Receita']].fillna(value=0)
-    dff[['Capex Líquido/EBIT(1-t)']] = dff[['Capex Líquido/EBIT(1-t)']].fillna(value=0)
-    dff[['Capital de Giro non-cash']] = dff[['Capital de Giro non-cash']].fillna(value=0)
-    dff[['Variação Capital de Giro']] = dff[['Variação Capital de Giro']].fillna(value=0)
-    dff[['Capital_Giro/revenues']] = dff[['Capital_Giro/revenues']].fillna(value=0)
-    dff[['Patrimônio Reinvestido']] = dff[['Patrimônio Reinvestido']].fillna(value=0)
-    dff[['Porcentagem Reinvestida']] = dff[['Porcentagem Reinvestida']].fillna(value=0)
+        medias = Medias()
 
-    if tipo == 'capex':
+        d1 = getattr(medias,'alldiv')
 
-        fig = go.Figure()
-        fig.add_bar(name = 'CAPEX',y=dff['Capex'],x=dff['DT_FIM_EXERC'],marker_color=colors['receita'], xperiod="M12",
-                    customdata=dff[['LABEL','Capex/Receita']],
+        diviid = d1.query("Codigo_CVM == [@cd_cv]")
+
+        if tipo == 'UNT N2':
+            tipo = 'UNT'
+
+        diviid = diviid.loc[(diviid['CLASSE'] == tipo)]
+
+        diviid = diviid.loc[(diviid['Proventos'].isin(['DIVIDENDO','JRS CAP PROPRIO']))]
+
+        diviid['Data COM'] = pd.to_datetime(diviid['Data COM'])
+
+        diviid['Data COM'] = diviid['Data COM'].dt.strftime('%d-%m-%Y')
+
+        diviid = diviid[(diviid['ano'] >= year[0]) & (diviid['ano'] <= year[1])]
+
+        diviid['Provento/Preço(%) ajustado'].replace(np.nan,0,inplace=True)
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+        fig.add_bar(name='Proventos',y=diviid['Valor ajustado'],x=diviid['Data COM'],
+                customdata=diviid[['Pagamento','Provento/Preço(%) ajustado']],
+                hovertemplate="<b>Data</b>: %{x}<br>"+
+                        "<b>Provento</b>: R%{y:$,.4f}<br>"+"<b>DY</b>: %{customdata[1]:.2%}",
+                marker_color=colors['receita'],secondary_y=False)
+
+        fig.add_scatter(name='Preço Data COM',y=diviid['Preço COM ajustado'],x=diviid['Data COM'],
+                    customdata=diviid[['Pagamento','Provento/Preço(%) ajustado']],
+                    hovertemplate="<b>Data</b>: %{x}<br>"+
+                        "<b>Preço</b>: R%{y:$,.2f}<br>"+"<b>DY</b>: %{customdata[1]:.2%}",
+                    marker_color=colors['lucro'],secondary_y=True)
+
+        fig.update_xaxes(showgrid=False,type="category")      
+
+
+    if tipo == 'ano':
+
+        df1 = dff.loc[(dff['tipo_resultado'] == 'anual') | (dff['LABEL'] == 'TTM')]
+        df1 = df1[(df1['ano'] >= year[0]) & (df1['ano'] <= year[1])]
+        df1.sort_values('DT_FIM_EXERC', inplace=True)
+
+        df1[['Preços']] = df1[['Preços']].fillna(value=0)
+        df1[['Dividend Yield']] = df1[['Dividend Yield']].fillna(value=0)
+
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+        fig.add_bar(name='Proventos',y=df1['Proventos no Período'],x=df1['LABEL'],
+                    customdata=df1[['LABEL','Dividend Yield']],
                     hovertemplate="<b>Ano</b>: %{x}<br>"+
-                    "<b>Capex</b>: R%{y:$,.0}<br>"+
-                    "<b>Capex/Receita</b>: %{customdata[1]:.2%}")
+                            "<b>Soma Proventos</b>: R%{y:$,.4f}<br>"+"<b>DY</b>: %{customdata[1]:.2%}",
+                    marker_color=colors['receita'], xperiod="M12",secondary_y=False)
+
+        fig.add_scatter(name='Preço Final do Período',y=df1['Preços'],x=df1['LABEL'],
+                        customdata=df1[['LABEL','Dividend Yield']],
+                        hovertemplate="<b>Ano</b>: %{x}<br>"+
+                            "<b>Preço</b>: R%{y:$,.2f}<br>"+"<b>DY</b>: %{customdata[1]:.2%}",
+                        marker_color=colors['lucro'],secondary_y=True)
+
+        fig.update_xaxes(showgrid=False,ticklabelmode="period",  tickformat="%Y")
+
+
     
-        fig.add_scatter(name='Depreciação',y=dff['Depreciação'],x=dff['DT_FIM_EXERC'],marker_color=colors['bruto'], xperiod="M12",
-                        customdata=dff[['LABEL','Capex/Depreciação']], 
-                        hovertemplate="<b>Ano</b>: %{x}<br>"+
-                        "<b>Depreciação</b>: R%{y:$,.0}<br>"+
-                        "<b>Capex/Depreciação</b>: %{customdata[1]:.2%}")
+    if tipo == 'payout':
 
-        fig.add_scatter(name='Capex Líquido',y=dff['Capex Líquido'],x=dff['DT_FIM_EXERC'],marker_color=colors['lucro'], xperiod="M12",
-                        customdata=dff[['LABEL','Capex Líquido/Receita','Capex Líquido/EBIT(1-t)']], 
-                        hovertemplate="<b>Ano</b>: %{x}<br>"+
-                        "<b>Capex Líquido</b>: R%{y:$,.0}<br>"+
-                        "<b>Capex Líquido/Receita</b>: %{customdata[1]:.2%}<br>"+
-                        "<b>Capex Líquido/EBIT(1-t)</b>: %{customdata[2]:.2%}")
+        df1 = dff.loc[(dff['tipo_resultado'] == 'anual') | (dff['LABEL'] == 'TTM')]
 
-        fig.update_xaxes(showgrid=True,ticklabelmode="period",  tickformat="%Y")
-        fig.update_traces(marker_line_color=colors['contorno'],
-                              marker_line_width=1.5, opacity=0.8)
-        fig.update_layout(title_text='Atividades de Investimento (CAPEX)',template='seaborn',
-                         barmode='relative')
+        df1 = df1[(df1['ano'] >= year[0]) & (df1['ano'] <= year[1])]
 
+        df1.sort_values('DT_FIM_EXERC', inplace=True)
 
-    if tipo == 'wc_non_cash':
+        df1[['Preços']] = df1[['Preços']].fillna(value=0)
+        df1[['Dividend Yield']] = df1[['Dividend Yield']].fillna(value=0)
 
-        fig = go.Figure()
-        fig.add_bar(name = 'Capital de Giro (non-cash)',y=dff['Capital de Giro non-cash'],x=dff['DT_FIM_EXERC'],marker_color=colors['receita'], xperiod="M12",
-                    customdata=dff[['LABEL','Capital_Giro/revenues']],
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+
+        fig.add_bar(name='Proventos',y=df1['Proventos'],x=df1['LABEL'],
                     hovertemplate="<b>Ano</b>: %{x}<br>"+
-                    "<b>Capital de Giro NC</b>: R%{y:$,.0}<br>"+
-                    "<b>Capital_Giro/Receitas</b>: %{customdata[1]:.2%}")
-    
-        fig.add_scatter(name='Variação do Capital de giro',y=dff['Variação Capital de Giro'],x=dff['DT_FIM_EXERC'],marker_color=colors['lucro'], xperiod="M12",
-                        hovertemplate="<b>Ano</b>: %{x}<br>"+
-                        "<b>Variação Capital de Giro</b>: R%{y:$,.0}<br>")
+                            "<b>Proventos</b>: R%{y:$,.2f}<br>",
+                    marker_color=colors['receita'], xperiod="M12",secondary_y=False)
 
 
-        fig.update_xaxes(showgrid=True,ticklabelmode="period",  tickformat="%Y")
-        fig.update_traces(marker_line_color=colors['contorno'],
-                              marker_line_width=1.5, opacity=0.8)
-        fig.update_layout(title_text='Capital de Giro (non-cash)',template='seaborn',
-                         barmode='relative')
-
-
-    if tipo == 'patri_reinv':
-
-        fig = go.Figure()
-        fig.add_bar(name = 'Patrimônio Reinvestido',y=dff['Patrimônio Reinvestido'],x=dff['DT_FIM_EXERC'],marker_color=colors['receita'], xperiod="M12",
-                    customdata=dff[['LABEL','Porcentagem Reinvestida']],
+        fig.add_bar(name='Lucro Líquido',y=df1['Lucro Atribuído a Controladores'],x=df1['LABEL'],
                     hovertemplate="<b>Ano</b>: %{x}<br>"+
-                    "<b>Patrimônio Reinvestido</b>: R%{y:$,.0}<br>"+
-                    "<b>Porcentagem Reinvestida</b>: %{customdata[1]:.2%}")
+                            "<b>Lucro</b>: R%{y:$,.2f}<br>",
+                    marker_color=colors['custos'], xperiod="M12",secondary_y=False)
 
-        fig.update_xaxes(showgrid=True,ticklabelmode="period",  tickformat="%Y")
-        fig.update_traces(marker_line_color=colors['contorno'],
-                              marker_line_width=1.5, opacity=0.8)
-        fig.update_layout(title_text='Patrimônio Reinvestido',template='seaborn',
-                         barmode='relative')
+
+        fig.add_scatter(name='Payout',y=df1['Payout'],x=df1['LABEL'],
+                        hovertemplate="<b>Ano</b>: %{x}<br>"+
+                            "<b>Payout</b>: %{y:.2%}<br>",
+                        marker_color=colors['lucro'],secondary_y=True)
+
+        fig.update_xaxes(showgrid=False,ticklabelmode="period",  tickformat="%Y")
+
 
 
     return fig
 
 
 
-def dfc_indicadores(dff,indicadores,comparadores):
+def div_indicadores(dff,indicadores,comparadores):
 
     try:
         dff = dff.query("LABEL == 'TTM'")
@@ -509,14 +473,7 @@ def dfc_indicadores(dff,indicadores,comparadores):
             except:
                 continue
         
-        
-        non_percemt =['P/Cap_Giro Atual']
-        if any(item in non_percemt for item in indicadores):
-            df_indicadores.loc[list(set(non_percemt).intersection(indicadores))] = df_indicadores.loc[list(set(non_percemt).intersection(indicadores))].round(decimals=2).astype(str)
-            
-
-
-
+      
         df_indicadores.reset_index(inplace=True)
         df_indicadores.rename({'index':''},inplace=True,axis=1)
         
@@ -528,11 +485,12 @@ def dfc_indicadores(dff,indicadores,comparadores):
         columns[0]['editable'] = True
 
         df_indicadores['id'] = df_indicadores['']
-        return  dash_table.DataTable(id='final-table-dfc',fixed_columns={'headers': True,'data': 1},
+        return  dash_table.DataTable(
+                                id="final-table-div",  fixed_columns={'headers': True,'data': 1},
                                 columns=columns,
                                 data=df_indicadores.to_dict('records'),
                                 row_selectable="single",
-                                selected_row_ids=['Capex/Receita'],
+                                selected_row_ids=['Margem bruta'],
                                 persistence=True,
                                 persistence_type='session', 
                                 style_table={'minWidth': '100%','marginLeft': 'auto', 
@@ -554,8 +512,8 @@ def dfc_indicadores(dff,indicadores,comparadores):
 
                                 style_header={
                                             'backgroundColor': colors['head_table'],
-                                            'fontWeight': 'bold','textAlign': 'center','whiteSpace': 'normal',
-                                            'height':'50px'
+                                            'fontWeight': 'bold','textAlign': 'center','height':'50px',
+                                            'whiteSpace': 'normal',
                                         },
 
                                 style_as_list_view=True,
@@ -569,23 +527,18 @@ def dfc_indicadores(dff,indicadores,comparadores):
 
 
 
-def dfc_indicadores_graph(slctd_row_indices,company,year):
+def div_indicadores_graph(slctd_row_indices,company,year):
 
     try:
         indic = slctd_row_indices[0]
 
     except:
-        indic = 'Capital_Giro/revenues'
-
+        indic = 'Dividend Yield'
 
     d1 = pd.DataFrame.from_dict(company) 
-    d1= d1[(d1['tipo_resultado'] == 'anual') | (d1['LABEL'] == 'TTM') ]  
-    
+    d1= d1[(d1['tipo_resultado'] == 'anual') | (d1['LABEL'] == 'TTM') ]
+      
 
-    try:
-        d1['P/Cap_Giro Atual'] = np.nan_to_num(d1['P/Cap_Giro histórico']) + np.nan_to_num(d1['P/Cap_Giro Atual'])
-    except:
-        d1=d1
 
     d1 = d1[(d1['ano'] >= year[0]) & (d1['ano'] <= year[1])]
     fig = go.Figure()
@@ -594,7 +547,7 @@ def dfc_indicadores_graph(slctd_row_indices,company,year):
                             marker_color=colors['receita'], xperiod="M12",text = d1[indic])
             
         
-    if not indic in ['P/Cap_Giro Atual']:
+    if not indic in ['Giro dos Ativos','LPA Atual']:
         fig.update_yaxes(tickformat=".2%")
 
         fig.update_xaxes(showgrid=True,ticklabelmode="period",  tickformat="%Y")
@@ -612,6 +565,7 @@ def dfc_indicadores_graph(slctd_row_indices,company,year):
                             yaxis = dict(fixedrange = False))
 
 
+    
 
     return fig
     

@@ -49,7 +49,7 @@ indicadores = ['Margem bruta','Margem EBITDA',
              'Crescimento Receita',
              'LPA Atual',]
 
-def layout_tab3(df):
+def layout_tab3():
     return html.Div([
                 
                      dbc.Container([ ## demonstração resultado
@@ -792,7 +792,7 @@ def dre_indicadores(dff,indicadores,comparadores):
 
         df_indicadores['id'] = df_indicadores['']
         return  dash_table.DataTable(
-                                id="final-table-1",  fixed_columns={'headers': True,'data': 1},
+                                id="final-table-dre",  fixed_columns={'headers': True,'data': 1},
                                 columns=columns,
                                 data=df_indicadores.to_dict('records'),
                                 row_selectable="single",

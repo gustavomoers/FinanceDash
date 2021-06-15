@@ -11,8 +11,28 @@ import dash_bootstrap_components as dbc
 import re
 import locale
 import pathlib
+from alpha_vantage.timeseries import TimeSeries
 from app import app
-from layouts import summary, analise_operacional,analise_caixa,analise_patrimonial
+from layouts import summary, analise_operacional,analise_caixa,analise_patrimonial,dividendos,price
+
+
+ALPHAVANTAGE_API_KEY_1 = '0N9REAL50IN0K66C'
+
+ALPHAVANTAGE_API_KEY_2 = 'LMW3CV85JDLM92I5'
+
+try:
+
+    ts = TimeSeries(key=ALPHAVANTAGE_API_KEY_1, output_format='pandas')
+    
+except:
+
+    ts = TimeSeries(key=ALPHAVANTAGE_API_KEY_2, output_format='pandas')
+    
+    
+
+
+
+
 
 locale.setlocale(locale.LC_ALL, '')
 
@@ -35,9 +55,8 @@ value = df['CODIGO'].unique()
 layout = html.Div([
 
     dcc.Store(id='memory-output'),
-    
+    dcc.Store(id='memory-price'),
 
-   
     html.Br(),
     html.Br(),
     html.Br(),
@@ -45,14 +64,20 @@ layout = html.Div([
                 dbc.Row([
                         dbc.Col([
                                 dbc.Card([
-                                    dbc.CardHeader(
-                                        dcc.Dropdown(
+                                    dbc.CardHeader([
+                                        dbc.Col([
+                                            dcc.Dropdown(
                                                     id="dropdown_company",
                                                     options=[{"label": x, "value": y} for x,y in list(zip(label,value))],
                                                     clearable=False,
                                                     placeholder="Selecione uma Empresa",
                                                     style={'font-family':'sans-serif',
-                                                                    'fontSize':12})),
+                                                                    'fontSize':12})
+                                                                    
+                                        ],width={'size': 12, 'offset': 0}), 
+                                      
+
+                                ]),
                                         dbc.CardBody([
        
                                                         dbc.Row([
@@ -143,7 +168,7 @@ def toggle_navbar_collapse(n, is_open):
 
 # callback for store chosen company data 
 @app.callback(Output('memory-output', 'data'),
-              Input('dropdown_company', 'value'))
+              Input('dropdown_company', 'value'), prevent_initial_call=True)
 def filter_company(company):
 
     df1 = df.loc[(df['CODIGO'] == company)]
@@ -158,7 +183,7 @@ def filter_company(company):
 @app.callback(Output('company-logo', 'src'),Output('name-link', 'children'),
               Output('first-summary-table', 'children'), Output('second-summary-table', 'children'),
               Output('descr','children'),
-              Input('memory-output', 'data'))
+              Input('memory-output', 'data'), prevent_initial_call=True)
 def update_summary(value):
     dff = pd.DataFrame.from_dict(value)
 
@@ -209,10 +234,10 @@ def update_summary(value):
 
 # callback for update content on tabs
 @app.callback(Output('tabs-content-inline', 'children'),
-              Input('tabs-styled-with-inline', 'value'),Input('memory-output', 'data'))
-def render_content(tab,data):
+              Input('tabs-styled-with-inline', 'value'))
+def render_content(tab):
 
-    dff = pd.DataFrame.from_dict(data)
+    
 
     if tab == 'tab-1':
         return html.Div([
@@ -221,27 +246,23 @@ def render_content(tab,data):
 
 
     elif tab == 'tab-2':
-        return html.Div([
-            html.H3('Display content here in tab 2', style = {'text-align': 'center', 'margin-top': '100px', 'color':'black'})
-        ])
+        return price.layout_tab2()
 
 
     elif tab == 'tab-3':
-        return analise_operacional.layout_tab3(dff)
+        return analise_operacional.layout_tab3()
 
 
     elif tab == 'tab-4':
-        return analise_caixa.layout_tab4(dff)
+        return analise_caixa.layout_tab4()
 
 
     elif tab == 'tab-5':
-        return analise_patrimonial.layout_tab5(dff)
+        return analise_patrimonial.layout_tab5()
 
 
     elif tab == 'tab-6':
-        return html.Div([
-            html.H3('Display content here in tab 4', style = {'text-align': 'center', 'margin-top': '100px', 'color':'black'})
-        ])
+        return dividendos.layout_tab6()
 
     
     elif tab == 'tab-7':
@@ -285,7 +306,7 @@ def update_dre_indicadores(company,indicadores,comparadores):
 
 # callback for dre indicadores graph
 @app.callback(Output(component_id='dre_indicadores_graph', component_property='figure'),
-     Input(component_id='final-table-1', component_property='derived_virtual_selected_row_ids'),
+     Input(component_id='final-table-dre', component_property='derived_virtual_selected_row_ids'),
      Input("memory-output", "data"),Input("slider_dre_indic", "value"))
 def update_dre_indicadores_graph(slctd_row_indices,company,year):
     if slctd_row_indices is None:
@@ -379,4 +400,66 @@ def update_bp_indicadores_graph(slctd_row_indices,company,year):
 
 
 
+# callback for div table
+@app.callback(Output("div_table", "children"),
+    Input("memory-output", "data"))
+def update_div_table(company):
+
+    dff = pd.DataFrame.from_dict(company)
+  
+    return dividendos.layout_div_table(dff)
+
+
+# callback for div graph
+@app.callback(Output("div_graph", "figure"),
+    Input("memory-output", "data"),Input("dropdown_div_graph", "value"),
+    Input("slider_div_graph", "value"))
+def update_div_graph(company,tipo,year):
+   
+    dff = pd.DataFrame.from_dict(company)
+    
+    return dividendos.div_graph(dff,tipo,year)
+
+
+# callback for div indicadores table
+@app.callback(Output("indicadores_div_table", "children"),
+    Input("memory-output", "data"),Input("dropdown_indicadores_div", "value"),
+    Input("dropdown_comparador_div", "value"))
+def update_div_indicadores(company,indicadores,comparadores):
+
+    dff = pd.DataFrame.from_dict(company)
+
+    return dividendos.div_indicadores(dff,indicadores,comparadores) 
+
+
+# callback for div indicadores graph
+@app.callback(Output(component_id='div_indicadores_graph', component_property='figure'),
+     Input(component_id='final-table-div', component_property='derived_virtual_selected_row_ids'),
+     Input("memory-output", "data"),Input("slider_div_indic", "value"))
+def update_div_indicadores_graph(slctd_row_indices,company,year):
+    if slctd_row_indices is None:
+        slctd_row_indices = []
+    return dividendos.div_indicadores_graph(slctd_row_indices,company,year)
+
+
+
+# callback for store chosen company price
+@app.callback(Output('memory-price', 'data'),
+              Input('dropdown_company', 'value'), prevent_initial_call=True)
+def price_company(company):
+
+    dados, meta_dados = ts.get_daily_adjusted(symbol='%s.SAO'%company, outputsize='full')
+    dados.reset_index(inplace=True)
+    dados['date'] = dados['date'].astype('str')
+
+    return dados.to_dict()    
+
+
+# callback for price graph
+@app.callback(Output(component_id='price_graph', component_property='figure'),
+     Input('price-boolean-switch', 'on'),
+     Input("memory-price", "data"))
+def update_price_graph(on,df_price):
+    dados = pd.DataFrame(df_price)
+    return price.price_graph(on,dados)
 

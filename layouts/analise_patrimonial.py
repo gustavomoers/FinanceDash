@@ -48,7 +48,7 @@ indicadores = [
              'Líquidez Corrente', 'VPA Atual',
             ]
 
-def layout_tab5(df):
+def layout_tab5():
     return html.Div([
                 
                      dbc.Container([ ## demonstração resultado
@@ -438,7 +438,7 @@ def layout_bp_table(dff,tipo,year):
     red_values.extend(green_values)
 
     return ([dash_table.DataTable(
-                            id="final-table-bp",  fixed_columns={'headers': True,'data': 1},
+                            id="final-table-3",  fixed_columns={'headers': True,'data': 1},
                             columns=columns,
                             data=bp3.to_dict('records'),   
                             style_table={'minWidth': '100%','marginLeft': 'auto', 
