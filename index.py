@@ -74,7 +74,7 @@ app.layout = html.Div([
 
 
 
-@app.callback(Output("loading-output-1", "children"), Input("page-content", "value"))
+@app.callback(Output("loading-output-1", "children"), Input("dre_graph", "value"))
 def input_triggers_spinner(value):
     time.sleep(1)
     return value
@@ -90,4 +90,4 @@ def display_page(pathname):
 
 
 if __name__ == '__main__':
-    app.run_server(debug=False)
+    app.run_server(debug=True)

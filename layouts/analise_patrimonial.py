@@ -455,7 +455,7 @@ def layout_bp_table(dff,tipo,year):
                                     },
         
                             style_cell_conditional=[{
-                                                    'if': {'column_editable': True},
+                                                    'if': {'column_id': ''},
                                                     'width': '180px','textAlign':'left',
                                                     'backgroundColor': colors['first_column'],
                                                     'fontWeight': 'bold'},
@@ -597,7 +597,7 @@ def bp_indicadores(dff,indicadores,comparadores):
                                         },
                                 
                                 style_cell_conditional=[{
-                                                        'if': {'column_editable': True},
+                                                        'if': {'column_id': ''},
                                                         'textAlign':'left',
                                                         'backgroundColor': colors['first_column'],
                                                         'fontWeight': 'bold'},

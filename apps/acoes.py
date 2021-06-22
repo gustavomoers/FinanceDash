@@ -307,7 +307,7 @@ def update_dre_indicadores(company,indicadores,comparadores):
 # callback for dre indicadores graph
 @app.callback(Output(component_id='dre_indicadores_graph', component_property='figure'),
      Input(component_id='final-table-dre', component_property='derived_virtual_selected_row_ids'),
-     Input("memory-output", "data"),Input("slider_dre_indic", "value"))
+     Input("memory-output", "data"),Input("slider_dre_indic", "value"), prevent_initial_call=True)
 def update_dre_indicadores_graph(slctd_row_indices,company,year):
     if slctd_row_indices is None:
         slctd_row_indices = []
@@ -349,7 +349,7 @@ def update_dfc_indicadores(company,indicadores,comparadores):
 # callback for dfc indicadores graph
 @app.callback(Output(component_id='dfc_indicadores_graph', component_property='figure'),
      Input(component_id='final-table-dfc', component_property='derived_virtual_selected_row_ids'),
-     Input("memory-output", "data"),Input("slider_dfc_indic", "value"))
+     Input("memory-output", "data"),Input("slider_dfc_indic", "value"), prevent_initial_call=True)
 def update_dfc_indicadores_graph(slctd_row_indices,company,year):
     if slctd_row_indices is None:
         slctd_row_indices = []
@@ -392,7 +392,7 @@ def update_bp_indicadores(company,indicadores,comparadores):
 # callback for bp indicadores graph
 @app.callback(Output(component_id='bp_indicadores_graph', component_property='figure'),
      Input(component_id='final-table-bp', component_property='derived_virtual_selected_row_ids'),
-     Input("memory-output", "data"),Input("slider_bp_indic", "value"))
+     Input("memory-output", "data"),Input("slider_bp_indic", "value"), prevent_initial_call=True)
 def update_bp_indicadores_graph(slctd_row_indices,company,year):
     if slctd_row_indices is None:
         slctd_row_indices = []
@@ -435,7 +435,7 @@ def update_div_indicadores(company,indicadores,comparadores):
 # callback for div indicadores graph
 @app.callback(Output(component_id='div_indicadores_graph', component_property='figure'),
      Input(component_id='final-table-div', component_property='derived_virtual_selected_row_ids'),
-     Input("memory-output", "data"),Input("slider_div_indic", "value"))
+     Input("memory-output", "data"),Input("slider_div_indic", "value"), prevent_initial_call=True)
 def update_div_indicadores_graph(slctd_row_indices,company,year):
     if slctd_row_indices is None:
         slctd_row_indices = []
@@ -458,8 +458,11 @@ def price_company(company):
 # callback for price graph
 @app.callback(Output(component_id='price_graph', component_property='figure'),
      Input('price-boolean-switch', 'on'),
-     Input("memory-price", "data"))
-def update_price_graph(on,df_price):
+     Input("memory-price", "data"),Input('price_graph','relayoutData')
+)
+def update_price_graph(on,df_price,relOut):
     dados = pd.DataFrame(df_price)
-    return price.price_graph(on,dados)
+    return price.price_graph(on,dados,relOut)
+
+
 

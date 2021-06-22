@@ -274,7 +274,7 @@ def layout_div_table(dff):
     diviid = diviid[['Proventos','Data COM','Pagamento','Valor','Valor ajustado','Preço COM ajustado',
                     'Provento/Preço(%) ajustado']]
     
-    columns = [{'name': 'Proventos', 'id': 'Proventos', 'type': 'text', 'editable': True,'hideable':'True'},
+    columns = [{'name': 'Proventos', 'id': 'Proventos', 'type': 'text', 'editable': True,'hideable':True},
              {'name': 'Data COM', 'id': 'Data COM', 'hideable': True},
              {'name': 'Pagamento', 'id': 'Pagamento', 'hideable': True},
              {'name': 'Valor', 'id': 'Valor', 'hideable': True, 'type':'numeric',
@@ -313,7 +313,7 @@ def layout_div_table(dff):
                                     },
         
                             style_cell_conditional=[{
-                                                    'if': {'column_editable': True},
+                                                    'if': {'column_id': 'Proventos'},
                                                     'width': '100px','textAlign':'left',
                                                     'fontWeight': 'bold'},
                                                     {'if': {'column_id': 'TTM'},
@@ -501,7 +501,7 @@ def div_indicadores(dff,indicadores,comparadores):
                                         },
                                 
                                 style_cell_conditional=[{
-                                                        'if': {'column_editable': True},
+                                                        'if': {'column_id': ''},
                                                         'textAlign':'left',
                                                         'backgroundColor': colors['first_column'],
                                                         'fontWeight': 'bold'},

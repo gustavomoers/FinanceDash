@@ -2,16 +2,14 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 import dash_daq as daq
-import dash_table
 from dash_table.Format import Format, Group, Prefix, Scheme, Symbol
 import datetime
 import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-import re
 import pandas as pd
-import pathlib
 from dateutil.relativedelta import relativedelta
+import json
 
 this_year = datetime.datetime.today().strftime('%Y')
 five_yrs_ago = (datetime.datetime.now() - relativedelta(years=5)).strftime('%Y')
@@ -53,11 +51,7 @@ def layout_tab2():
 
                     dbc.Row([
                         dbc.Col([
-                            dcc.Loading(
-                                id="loading-1",
-                                type="default",
-                                children=[dcc.Graph(id="price_graph")]
-                            ),
+                            dcc.Graph(id="price_graph"),
                         ],width={'size':12, 'offset': 0})
                     ]),
 
@@ -70,58 +64,69 @@ def layout_tab2():
     ])
 
 
-def price_graph(on,dados):
+def price_graph(on,dados,relOut):
 
-    try:
+    dados['date'] = pd.to_datetime(dados['date'],errors='coerce')
+    dados.set_index('date',inplace=True)
 
-        dados['date'] = pd.to_datetime(dados['date'],errors='coerce')
-        dados.set_index('date',inplace=True)
+    try: 
+        ymin = dados.loc[relOut['xaxis.range'][1]:relOut['xaxis.range'][0],'5. adjusted close'].min()
+        ymax = dados.loc[relOut['xaxis.range'][1]:relOut['xaxis.range'][0],'5. adjusted close'].max()
+        xrange = relOut['xaxis.range']
 
-        fig = make_subplots(specs=[[{"secondary_y": True}]])
-        fig.add_scattergl(name='Preço',x = dados.index, y=dados['5. adjusted close'],secondary_y=False,
-            marker_color=colors['header'])
-        
-        if (on):
-            
-            fig.add_bar(name='Volume',x = dados.index, y=dados['6. volume'],secondary_y=True,
-                marker_color=colors['lucro'],opacity=.9)
-
-        if dados.index.min() < (datetime.datetime.now() - relativedelta(years=5)):
-            
-            fig.update_xaxes(range=[five_yrs_ago,today])
-        
-        # Add range slider
-        fig.update_layout(
-            xaxis=dict(
-                rangeselector=dict(
-                    buttons=list([
-                        dict(count=5,
-                            label="5y",
-                            step="year",
-                            stepmode="backward"),
-                        dict(count=3,
-                            label="3y",
-                            step="year",
-                            stepmode="backward"),
-                        dict(count=1,
-                            label="1y",
-                            step="year",
-                            stepmode="backward"),
-                        dict(count=1,
-                            label="YTD",
-                            step="year",
-                            stepmode="todate"),
-                        dict(step="all")
-                    ])
-                ),
-                rangeslider=dict(
-                    visible=True
-                ),
-                type="date"
-            )
-        )
-
-        return fig
-    
     except:
-        return 'Não Disponível'
+        try:
+            ymin = dados.loc[relOut['xaxis.range[1]']:relOut['xaxis.range[0]'],'5. adjusted close'].min()
+            ymax = dados.loc[relOut['xaxis.range[1]']:relOut['xaxis.range[0]'],'5. adjusted close'].max()
+            xrange = [relOut['xaxis.range[0]'],relOut['xaxis.range[1]']]
+
+
+        except:
+
+            ymin = dados['5. adjusted close'].min()
+            ymax = dados['5. adjusted close'].max()
+            xrange = [dados.index.min(),dados.index.max()]
+ 
+
+            #Graph data
+    dataS = [dict(
+                    x = dados.index,
+                    y = dados['5. adjusted close'],
+                    name = 'Preço',
+                    mode = 'lines', marker = {'color': colors['header']}
+                ),dict(
+                    x = dados.index,
+                    y = dados['6. volume'],
+                    name = 'Volume',type='bar',yaxis= 'y2', marker = {'color': colors['lucro'],'opacity': '.2'}
+                )]
+
+
+
+                #Graph layout
+    layoutS = go.Layout(
+                    xaxis=dict(
+                        rangeslider_visible=True,
+                        rangeselector=dict(
+                            buttons=list([
+                                dict(count=1, label="1m", step="month", stepmode="backward"),
+                                dict(count=6, label="6m", step="month", stepmode="backward"),
+                                dict(count=1, label="YTD", step="year", stepmode="todate"),
+                                dict(count=1, label="1y", step="year", stepmode="backward"),
+                                dict(count=5, label="5y", step="year", stepmode="backward"),
+                                dict(step="all")
+                            ])
+                        ),range=xrange,
+                    ),
+                    yaxis=dict(range=[ymin-2,ymax+2]),
+                    yaxis2 = {
+                    'overlaying': 'y',
+                    'side': 'right'
+                }
+                )
+
+    return dict(data=dataS,layout=layoutS)
+
+
+    
+
+ 
