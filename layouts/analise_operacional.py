@@ -47,7 +47,7 @@ indicadores = ['Margem bruta','Margem EBITDA',
              'Crescimento esperado LPA',
              'Crescimento esperado EBIT',
              'Crescimento Receita',
-             'LPA Atual',]
+             'LPA histórico',]
 
 def layout_tab3():
     return html.Div([
@@ -774,7 +774,7 @@ def dre_indicadores(dff,indicadores,comparadores):
                 continue
         
         
-        non_percemt = ['LPA Atual','Giro dos Ativos']
+        non_percemt = ['LPA histórico','Giro dos Ativos']
         if any(item in non_percemt for item in indicadores):
             df_indicadores.loc[list(set(non_percemt).intersection(indicadores))] = df_indicadores.loc[list(set(non_percemt).intersection(indicadores))].round(decimals=2).astype(str)
              
@@ -845,11 +845,6 @@ def dre_indicadores_graph(slctd_row_indices,company,year):
     d1= d1[(d1['tipo_resultado'] == 'anual') | (d1['LABEL'] == 'TTM') ]
       
 
-    try:
-        d1['LPA Atual'] = np.nan_to_num(d1['LPA histórico']) + np.nan_to_num(d1['LPA Atual'])
-    except:
-        d1=d1
-
 
     d1 = d1[(d1['ano'] >= year[0]) & (d1['ano'] <= year[1])]
     fig = go.Figure()
@@ -858,7 +853,7 @@ def dre_indicadores_graph(slctd_row_indices,company,year):
                             marker_color=colors['receita'], xperiod="M12",text = d1[indic])
             
         
-    if not indic in ['Giro dos Ativos','LPA Atual']:
+    if not indic in ['Giro dos Ativos','LPA histórico']:
         fig.update_yaxes(tickformat=".2%")
 
         fig.update_xaxes(showgrid=True,ticklabelmode="period",  tickformat="%Y")

@@ -45,7 +45,7 @@ indicadores = [
              'Endividamento Financeiro Curto Prazo',
              'Dív_Líq/ebitda',
              'PL/Ativos','Passivo/Ativo',
-             'Líquidez Corrente', 'VPA Atual',
+             'Líquidez Corrente', 'VPA histórico',
             ]
 
 def layout_tab5():
@@ -539,7 +539,7 @@ def bp_indicadores(dff,indicadores,comparadores):
              'Dív_Líq/PL',
              'Dív_Líq/ebitda',
              'PL/Ativos','Passivo/Ativo',
-             'Líquidez Corrente', 'VPA Atual']
+             'Líquidez Corrente', 'VPA histórico']
 
         df_indicadores = dff[indicadores].T
         df_indicadores.rename({df_indicadores.columns[0]: 'Empresa: %s'%empresa},inplace=True, axis=1)
@@ -636,11 +636,6 @@ def bp_indicadores_graph(slctd_row_indices,company,year):
     d1= d1[(d1['tipo_resultado'] == 'anual') | (d1['LABEL'] == 'TTM') ] 
      
 
-    try:
-        d1['VPA Atual'] = np.nan_to_num(d1['VPA histórico']) + np.nan_to_num(d1['VPA Atual'])
-    except:
-        d1=d1
-
     d1 = d1[(d1['ano'] >= year[0]) & (d1['ano'] <= year[1])]
     fig = go.Figure()
 
@@ -648,7 +643,7 @@ def bp_indicadores_graph(slctd_row_indices,company,year):
                             marker_color=colors['receita'], xperiod="M12",text = d1[indic])
             
         
-    if not indic in ['Dív_Líq/EBIT','Dív_Líq/PL','Dív_Líq/ebitda','PL/Ativos','Passivo/Ativo','Líquidez Corrente', 'VPA Atual']:
+    if not indic in ['VPA histórico','Dív_Líq/EBIT','Dív_Líq/PL','Dív_Líq/ebitda','PL/Ativos','Passivo/Ativo','Líquidez Corrente',]:
         fig.update_yaxes(tickformat=".2%")
 
         fig.update_xaxes(showgrid=True,ticklabelmode="period",  tickformat="%Y")

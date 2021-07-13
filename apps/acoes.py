@@ -11,27 +11,16 @@ import dash_bootstrap_components as dbc
 import re
 import locale
 import pathlib
-from alpha_vantage.timeseries import TimeSeries
+from yahooquery import Ticker
+from dateutil.relativedelta import relativedelta
+import datetime
 from app import app
 from layouts import summary, analise_operacional,analise_caixa,analise_patrimonial,dividendos,price
 
 
-ALPHAVANTAGE_API_KEY_1 = '0N9REAL50IN0K66C'
 
-ALPHAVANTAGE_API_KEY_2 = 'LMW3CV85JDLM92I5'
-
-try:
-
-    ts = TimeSeries(key=ALPHAVANTAGE_API_KEY_1, output_format='pandas')
-    
-except:
-
-    ts = TimeSeries(key=ALPHAVANTAGE_API_KEY_2, output_format='pandas')
-    
-    
-
-
-
+five_yrs_ago = (datetime.datetime.now() - relativedelta(years=5)).strftime('%Y')
+today = datetime.datetime.today().strftime('%Y-%m-%d')
 
 
 locale.setlocale(locale.LC_ALL, '')
@@ -448,21 +437,68 @@ def update_div_indicadores_graph(slctd_row_indices,company,year):
               Input('dropdown_company', 'value'), prevent_initial_call=True)
 def price_company(company):
 
-    dados, meta_dados = ts.get_daily_adjusted(symbol='%s.SAO'%company, outputsize='full')
-    dados.reset_index(inplace=True)
-    dados['date'] = dados['date'].astype('str')
+    try:
+        dados = Ticker('%s.sa'%str.lower(company)).history(period='10y', interval='1d')
 
-    return dados.to_dict()    
+        dados = dados.droplevel(0)
+        dados.reset_index(inplace=True)
+        dados['date'] = pd.to_datetime(dados['date'],errors='coerce')
 
+        fiveyear = np.int(five_yrs_ago)
+
+        if dados['date'].min().year > fiveyear:
+            xrange = [dados['date'].min(),today]
+        else:
+            xrange = [five_yrs_ago,today]
+
+
+        dados.set_index('date',inplace=True)
+
+    
+
+            #Graph data
+        dataS = [dict(
+            x = dados.index,
+            y = dados['close'],
+            name = 'Preço',
+            mode = 'lines', marker = {'color': 'rgb(144, 31, 35)'}
+        )]
+
+
+
+        #Graph layout
+        layoutS = go.Layout(
+            xaxis=dict(
+                rangeslider_visible=True,
+                rangeselector=dict(
+                    buttons=list([
+                        dict(count=1, label="1m", step="month", stepmode="backward"),
+                        dict(count=6, label="6m", step="month", stepmode="backward"),
+                        dict(count=1, label="YTD", step="year", stepmode="todate"),
+                        dict(count=1, label="1y", step="year", stepmode="backward"),
+                        dict(count=5, label="5y", step="year", stepmode="backward"),
+                        dict(step="all")
+                    ])
+                ),range = xrange
+            ),
+        )
+
+        relOut = dict(autosize= True)
+                    
+                
+
+        return dict(data=dataS,layout=layoutS)
+
+    except:
+        return dict(data=[dict(x=0,y=0)])
 
 # callback for price graph
-@app.callback(Output(component_id='price_graph', component_property='figure'),
-     Input('price-boolean-switch', 'on'),
-     Input("memory-price", "data"),Input('price_graph','relayoutData')
-)
-def update_price_graph(on,df_price,relOut):
-    dados = pd.DataFrame(df_price)
-    return price.price_graph(on,dados,relOut)
-
+# @app.callback(Output(component_id='price_graph', component_property='figure'),
+#      Input('price-boolean-switch', 'on'),
+#      Input("memory-price", "data"),Input('price_graph','relayoutData')
+# )
+# def update_price_graph(on,df_price,relOut):
+#     dados = pd.DataFrame(df_price)
+#     return price.price_graph(on,dados,relOut)
 
 
