@@ -29,7 +29,7 @@ locale.setlocale(locale.LC_ALL, '')
 PATH = pathlib.Path(__file__).parent
 DATA_PATH = PATH.joinpath("../DADOS").resolve()
 
-df = pd.read_csv(DATA_PATH.joinpath('df_princial_preco_atualizado.csv'),low_memory=False)  # GregorySmith Kaggle
+df = pd.read_pickle(DATA_PATH.joinpath('df_principal.pkl'))  # GregorySmith Kaggle
 df['DT_FIM_EXERC'] = pd.to_datetime(df['DT_FIM_EXERC'])
 df['drop_options'] = df['CODIGO']+ ': ' + df['NAME_PREG']
 df = df.replace(np.inf, np.nan)
@@ -162,8 +162,6 @@ def filter_company(company):
 
     df1 = df.loc[(df['CODIGO'] == company)]
 
-    if df1['GRUPO_DFP'].nunique() == 2:
-        df1 = df1[df1['GRUPO_DFP'] != 'DF_IND'] 
 
     return df1.to_dict('records')    
 
@@ -193,17 +191,17 @@ def update_summary(value):
 
     try:
         dff = dff.loc[(dff['LABEL'] == 'TTM')]
-        dff['current_price'].replace(np.nan,0,inplace=True)
-        dff['Valor de Mercado Atual'].replace(np.nan,0,inplace=True)
-        dff['Qtde Total de Ações'].replace(np.nan,0,inplace=True)
-        dff['Qtde Ações Ordinárias'].replace(np.nan,0,inplace=True)
-        dff['Qtde Ações Preferenciais'].replace(np.nan,0,inplace=True)
+        dff['Preço'].replace(np.nan,0,inplace=True)
+        dff['Valor de Mercado'].replace(np.nan,0,inplace=True)
+        dff['Total Ações'].replace(np.nan,0,inplace=True)
+        dff['Total ON'].replace(np.nan,0,inplace=True)
+        dff['Total PN'].replace(np.nan,0,inplace=True)
 
-        price = dff['current_price'].unique()[0]
-        mv_value = dff['Valor de Mercado Atual'].unique()[0]
-        total_papeis = dff['Qtde Total de Ações'].unique()[0]
-        total_on = dff['Qtde Ações Ordinárias'].unique()[0]
-        total_pn = dff['Qtde Ações Preferenciais'].unique()[0]
+        price = dff['Preço'].unique()[0]
+        mv_value = dff['Valor de Mercado'].unique()[0]
+        total_papeis = dff['Total Ações'].unique()[0]
+        total_on = dff['Total ON'].unique()[0]
+        total_pn = dff['Total PN'].unique()[0]
         class_capital = dff['Classificação Capitalização'].unique()[0]
     except:
         price = 0

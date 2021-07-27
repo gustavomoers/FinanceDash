@@ -22,12 +22,12 @@ class Medias:
     # get relative data folder
     PATH = pathlib.Path(__file__).parent
     DATA_PATH = PATH.joinpath("../DADOS").resolve()
-    setor = pd.read_csv(DATA_PATH.joinpath('medias_setor.csv'),low_memory=False,index_col=[0])
-    subsetor = pd.read_csv(DATA_PATH.joinpath('medias_subsetor.csv'),low_memory=False,index_col=[0])
-    segmento = pd.read_csv(DATA_PATH.joinpath('medias_segmento.csv'),low_memory=False,index_col=[0])
-    mercado = pd.read_csv(DATA_PATH.joinpath('medias_mercado_ttm.csv'),low_memory=False,index_col=[0])
-    capital = pd.read_csv(DATA_PATH.joinpath('medias_capital.csv'),low_memory=False,index_col=[0])
-    alldiv = pd.read_csv(DATA_PATH.joinpath('proventos_b3.csv'),low_memory=False)  # GregorySmith Kaggle
+    setor = pd.read_pickle(DATA_PATH.joinpath('medias_setor.pkl'))
+    subsetor = pd.read_pickle(DATA_PATH.joinpath('medias_subsetor.pkl'))
+    segmento = pd.read_pickle(DATA_PATH.joinpath('medias_segmento.pkl'))
+    mercado = pd.read_pickle(DATA_PATH.joinpath('medias_mercado_ttm.pkl'))
+    capital = pd.read_pickle(DATA_PATH.joinpath('medias_capital.pkl'))
+    alldiv = pd.read_pickle(DATA_PATH.joinpath('proventos_b3.pkl'))  # GregorySmith Kaggle
 
 colors = {'header': "rgb(144, 31, 35)",'first_column': 'rgb(190, 195, 218,.2)',
           'column_ttm': 'rgb(248, 181, 0,.3)','head_table':'rgb(190, 195, 218,.5)',
@@ -382,7 +382,7 @@ def div_graph(dff,tipo,year):
         df1 = df1[(df1['ano'] >= year[0]) & (df1['ano'] <= year[1])]
         df1.sort_values('DT_FIM_EXERC', inplace=True)
 
-        df1[['Preços']] = df1[['Preços']].fillna(value=0)
+        df1[['Preço']] = df1[['Preço']].fillna(value=0)
         df1[['Dividend Yield']] = df1[['Dividend Yield']].fillna(value=0)
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
@@ -393,7 +393,7 @@ def div_graph(dff,tipo,year):
                             "<b>Soma Proventos</b>: R%{y:$,.4f}<br>"+"<b>DY</b>: %{customdata[1]:.2%}",
                     marker_color=colors['receita'], xperiod="M12",secondary_y=False)
 
-        fig.add_scatter(name='Preço Final do Período',y=df1['Preços'],x=df1['LABEL'],
+        fig.add_scatter(name='Preço Final do Período',y=df1['Preço'],x=df1['LABEL'],
                         customdata=df1[['LABEL','Dividend Yield']],
                         hovertemplate="<b>Ano</b>: %{x}<br>"+
                             "<b>Preço</b>: R%{y:$,.2f}<br>"+"<b>DY</b>: %{customdata[1]:.2%}",
@@ -411,7 +411,7 @@ def div_graph(dff,tipo,year):
 
         df1.sort_values('DT_FIM_EXERC', inplace=True)
 
-        df1[['Preços']] = df1[['Preços']].fillna(value=0)
+        df1[['Preço']] = df1[['Preço']].fillna(value=0)
         df1[['Dividend Yield']] = df1[['Dividend Yield']].fillna(value=0)
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])

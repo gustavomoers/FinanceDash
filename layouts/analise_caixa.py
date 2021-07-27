@@ -22,11 +22,11 @@ class Medias:
     # get relative data folder
     PATH = pathlib.Path(__file__).parent
     DATA_PATH = PATH.joinpath("../DADOS").resolve()
-    setor = pd.read_csv(DATA_PATH.joinpath('medias_setor.csv'),low_memory=False,index_col=[0])
-    subsetor = pd.read_csv(DATA_PATH.joinpath('medias_subsetor.csv'),low_memory=False,index_col=[0])
-    segmento = pd.read_csv(DATA_PATH.joinpath('medias_segmento.csv'),low_memory=False,index_col=[0])
-    mercado = pd.read_csv(DATA_PATH.joinpath('medias_mercado_ttm.csv'),low_memory=False,index_col=[0])
-    capital = pd.read_csv(DATA_PATH.joinpath('medias_capital.csv'),low_memory=False,index_col=[0])
+    setor = pd.read_pickle(DATA_PATH.joinpath('medias_setor.pkl'))
+    subsetor = pd.read_pickle(DATA_PATH.joinpath('medias_subsetor.pkl'))
+    segmento = pd.read_pickle(DATA_PATH.joinpath('medias_segmento.pkl'))
+    mercado = pd.read_pickle(DATA_PATH.joinpath('medias_mercado_ttm.pkl'))
+    capital = pd.read_pickle(DATA_PATH.joinpath('medias_capital.pkl'))
 
 
 colors = {'header': "rgb(144, 31, 35)",'first_column': 'rgb(190, 195, 218,.2)',
