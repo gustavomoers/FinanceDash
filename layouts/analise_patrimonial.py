@@ -294,8 +294,8 @@ def layout_bp_table(dff,tipo,year):
                                                             'Dívida curto prazo',
                                                             'Passivo Não Circulante',
                                                             'Dívida longo prazo',
-                                                            'Patrimônio Líquido Con Final',
-                                                            'Participação dos Não Controladores Final'])
+                                                            'Patrimônio Líquido Consolidado',
+                                                            'Participação dos Acionistas Não Controladores'])
     index_order = ['Ativo Total',
                     'Ativo Circulante',
                     'Aplicações Financeiras',
@@ -308,8 +308,8 @@ def layout_bp_table(dff,tipo,year):
                     'Dívida curto prazo',
                     'Passivo Não Circulante',
                     'Dívida longo prazo',
-                    'Patrimônio Líquido Con Final',
-                    'Participação dos Não Controladores Final']
+                    'Patrimônio Líquido Consolidado',
+                    'Participação dos Acionistas Não Controladores']
 
 
     bp3 = bp1.reindex(index_order)
@@ -323,9 +323,7 @@ def layout_bp_table(dff,tipo,year):
                 'Passivo Circulante': ' Passivo Circulante',
                 'Dívida curto prazo': '  Dívida curto prazo',
                 'Passivo Não Circulante': ' Passivo Não Circulante',
-                'Dívida longo prazo': '  Dívida longo prazo',
-                'Patrimônio Líquido Con Final': ' Patrimônio Líquido Consolidado',
-                'Participação dos Não Controladores Final': '  Participação dos Não Controladores'},inplace=True)
+                'Dívida longo prazo': '  Dívida longo prazo',},inplace=True)
 
     bp3 = bp3[bp3.columns[::-1]]
     bp3.reset_index(inplace=True)
@@ -351,8 +349,8 @@ def layout_bp_table(dff,tipo,year):
                                                             'Dívida curto prazo',
                                                             'Passivo Não Circulante',
                                                             'Dívida longo prazo',
-                                                            'Patrimônio Líquido Con Final',
-                                                            'Participação dos Não Controladores Final'])
+                                                            'Patrimônio Líquido Consolidado',
+                                                            'Participação dos Acionistas Não Controladores'])
 
         index_order = ['Ativo Total',
                             'Ativo Circulante',
@@ -366,8 +364,8 @@ def layout_bp_table(dff,tipo,year):
                             'Dívida curto prazo',
                             'Passivo Não Circulante',
                             'Dívida longo prazo',
-                            'Patrimônio Líquido Con Final',
-                            'Participação dos Não Controladores Final']
+                            'Patrimônio Líquido Consolidado',
+                            'Participação dos Acionistas Não Controladores']
 
         df2 = df2.reindex(index_order)
 
@@ -381,9 +379,7 @@ def layout_bp_table(dff,tipo,year):
                 'Passivo Circulante': ' Passivo Circulante',
                 'Dívida curto prazo': '  Dívida curto prazo',
                 'Passivo Não Circulante': ' Passivo Não Circulante',
-                'Dívida longo prazo': '  Dívida longo prazo',
-                'Patrimônio Líquido Con Final': ' Patrimônio Líquido Consolidado',
-                'Participação dos Não Controladores Final': '  Participação dos Não Controladores'},inplace=True)
+                'Dívida longo prazo': '  Dívida longo prazo',},inplace=True)
 
         df2.reset_index(inplace=True)
 
@@ -479,7 +475,7 @@ def layout_bp_table(dff,tipo,year):
 
 def bp_graph(dff,year):
 
-    dff[['Patrimônio Líquido Con Final']] = dff[['Patrimônio Líquido Con Final']].fillna(value=0)
+    dff[['Patrimônio Líquido Consolidado']] = dff[['Patrimônio Líquido Consolidado']].fillna(value=0)
     dff[['Patrimônio/Capital_Inv']] = dff[['Patrimônio/Capital_Inv']].fillna(value=0)
     dff[['Dívida/Capital_Inv']] = dff[['Dívida/Capital_Inv']].fillna(value=0)
     dff[['Margem EBIT']] = dff[['Margem EBIT']].fillna(value=0)
@@ -492,7 +488,7 @@ def bp_graph(dff,year):
 
     fig = go.Figure()
 
-    fig.add_bar(name = 'Patrimônio Líquido',y=dff['Patrimônio Líquido Con Final'],x=dff['DT_FIM_EXERC'],marker_color=colors['receita'], xperiod="M12",
+    fig.add_bar(name = 'Patrimônio Líquido',y=dff['Patrimônio Líquido Consolidado'],x=dff['DT_FIM_EXERC'],marker_color=colors['receita'], xperiod="M12",
                     customdata=dff[['LABEL','Patrimônio/Capital_Inv']],
                     hovertemplate="<b>Ano</b>: %{x}<br>"+
                     "<b>Patrimônio Líquido</b>: R%{y:$,.0}<br>"+
