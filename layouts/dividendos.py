@@ -263,13 +263,15 @@ def layout_div_table(dff):
     diviid.drop(diviid.columns.difference(['Proventos','Data COM','Valor',
        'Valor ajustado', 'Preço COM ajustado', 'Provento/Preço(%) ajustado','Pagamento']),axis=1,inplace=True)
 
-    diviid['Data COM'] = pd.to_datetime(diviid['Data COM'],errors='coerce')
-    diviid['Pagamento'] = pd.to_datetime(diviid['Pagamento'],errors='coerce')
+    diviid['Data COM'] = pd.to_datetime(diviid['Data COM'],errors='coerce', format='%Y-%m-%d')
+    diviid['Pagamento'] = pd.to_datetime(diviid['Pagamento'],errors='coerce', format='%Y-%m-%d')
 
     diviid.sort_values('Data COM',inplace=True,ascending=False)
 
     diviid['Data COM'] = diviid['Data COM'].dt.strftime('%d-%m-%Y')
     diviid['Pagamento'] = diviid['Pagamento'].dt.strftime('%d-%m-%Y')
+
+    
 
     diviid = diviid[['Proventos','Data COM','Pagamento','Valor','Valor ajustado','Preço COM ajustado',
                     'Provento/Preço(%) ajustado']]
