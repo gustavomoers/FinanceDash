@@ -14,7 +14,7 @@ Here you can see some images from the dashboard:
 ![Captura de tela 2021-12-14 201759](https://user-images.githubusercontent.com/69984472/146095551-136e0cdc-bc15-4eec-aeeb-7608f23adf29.png)
 
 
-### Income Statement and Graph Tab:
+### Income Statement Tab:
 ![dre tab](https://user-images.githubusercontent.com/69984472/146095729-1630d01d-2fe5-4b92-aa71-030a65110ced.png)
 
 
