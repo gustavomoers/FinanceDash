@@ -15,7 +15,7 @@ from yahooquery import Ticker
 from dateutil.relativedelta import relativedelta
 import datetime
 from app import app
-from layouts import summary, analise_operacional,analise_caixa,analise_patrimonial,dividendos,price
+from layouts import summary, analise_operacional,analise_caixa,analise_patrimonial,dividendos,price,valuation
 
 
 
@@ -38,17 +38,17 @@ df['ano'] = df['ano'].astype(int)
 label = df['drop_options'].unique()
 value = df['CODIGO'].unique()
 
-
+ttm = pd.read_pickle(DATA_PATH.joinpath('last_results_alldata.pkl'))
 
 
 layout = html.Div([
 
     dcc.Store(id='memory-output'),
+    dcc.Store(id='memory-output-ttm'),
     dcc.Store(id='memory-price'),
 
     html.Br(),
-    html.Br(),
-    html.Br(),
+   
     dbc.Container([  ## container select company and summary
                 dbc.Row([
                         dbc.Col([
@@ -108,9 +108,6 @@ layout = html.Div([
                 ]),
                    
 
-    
-    html.Br(),
-    html.Br(),
     html.Br(),
     
 
@@ -134,8 +131,6 @@ layout = html.Div([
             ], parent_className='custom-tabs',
                 className='custom-tabs-container'),
                html.Br(),
-                html.Br(),
-                html.Br(),
             html.Div(id = 'tabs-content-inline')
         ] ),
         ]),width={'size': 10, 'offset': 1}
@@ -155,7 +150,7 @@ def toggle_navbar_collapse(n, is_open):
     return is_open
 
 
-# callback for store chosen company data 
+# callback for store chosen company data df principal
 @app.callback(Output('memory-output', 'data'),
               Input('dropdown_company', 'value'), prevent_initial_call=True)
 def filter_company(company):
@@ -166,9 +161,20 @@ def filter_company(company):
     return df1.to_dict('records')    
 
 
+# callback for store chosen company data TTM
+@app.callback(Output('memory-output-ttm', 'data'),
+              Input('dropdown_company', 'value'), prevent_initial_call=True)
+def filter_company_ttm(company):
+
+    df2 = ttm.loc[(ttm['CODIGO'] == company)]
+
+
+    return df2.to_dict('records') 
+
+
 # callback for company summary
 @app.callback(Output('company-logo', 'src'),Output('name-link', 'children'),
-              Output('first-summary-table', 'children'), Output('second-summary-table', 'children'),
+             # Output('first-summary-table', 'children'), Output('second-summary-table', 'children'),
               Output('descr','children'),
               Input('memory-output', 'data'), prevent_initial_call=True)
 def update_summary(value):
@@ -214,8 +220,8 @@ def update_summary(value):
 
 
     return (app.get_asset_url("%s.svg"%output), summary.summary_name(nome_empresarial,cnpj,pagina_web),
-            summary.summary_table_first(codigos,seg_b3,price,total_papeis,total_on,total_pn,mv_value),
-            summary.summary_table_setor(setor,subsetor,segmento,class_capital,world),
+            #summary.summary_table_first(codigos,seg_b3,price,total_papeis,total_on,total_pn,mv_value),
+            #summary.summary_table_setor(setor,subsetor,segmento,class_capital,world),
             descr)
 
 
@@ -253,9 +259,8 @@ def render_content(tab):
 
     
     elif tab == 'tab-7':
-        return html.Div([
-            html.H3('Display content here in tab 4', style = {'text-align': 'center', 'margin-top': '100px', 'color':'black'})
-        ])
+            return valuation.layout_tab7()
+
 
 
 # callback for dre table
@@ -500,3 +505,12 @@ def price_company(company):
 #     return price.price_graph(on,dados,relOut)
 
 
+# callback for valuation indicadores table
+@app.callback(Output("indicadores_valuation_table", "children"),
+    Input("memory-output-ttm", "data"),Input("dropdown_indicadores_valuation", "value"),
+    Input("dropdown_comparador_valuation", "value"))
+def update_valuation_indicadores(company,indicadores,comparadores):
+
+    dff = pd.DataFrame.from_dict(company)
+
+    return valuation.valuation_indicadores(dff,indicadores,comparadores) 

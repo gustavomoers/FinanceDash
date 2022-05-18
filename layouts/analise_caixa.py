@@ -41,7 +41,7 @@ indicadores = [ 'Capital_Giro/revenues',
                 'Capex Líquido/Receita',
                 'Capex Líquido/EBIT(1-t)',
                 'P/Cap_Giro Atual',
-                'Porcentagem Reinvestida']
+                'Porcentagem Reinvestida',"Receitas/Capital_Inv"]
 
 def layout_tab4():
     return html.Div([
